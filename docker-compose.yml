@@ -1,0 +1,46 @@
+name: farfinder
+
+services:
+  farfinder:
+    image: farfinder:local
+    platform: linux/amd64
+    build:
+      context: .
+      args:
+        APP_UID: "${LOCAL_UID:-1000}"
+        APP_GID: "${LOCAL_GID:-1000}"
+    init: true
+    network_mode: none
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    group_add:
+      - "${VIDEO_GID:-44}"
+    devices:
+      - /dev/video0:/dev/video0:rw
+    environment:
+      DISPLAY: "${DISPLAY:-:0}"
+      XAUTHORITY: /tmp/.docker.xauth
+    volumes:
+      - farfinder-data:/app/data
+      - type: bind
+        source: /tmp/.X11-unix
+        target: /tmp/.X11-unix
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./.docker.xauth
+        target: /tmp/.docker.xauth
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=128m,mode=1777
+    stop_grace_period: 10s
+    restart: "no"
+
+volumes:
+  farfinder-data:
