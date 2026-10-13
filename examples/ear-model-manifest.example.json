@@ -1,0 +1,18 @@
+{
+  "output_format": "yolo_pose_1class_4keypoints",
+  "keypoints": [
+    "left_tragus",
+    "right_tragus",
+    "left_superior_ear_root",
+    "right_superior_ear_root"
+  ],
+  "input_size": 640,
+  "confidence_threshold": 0.65,
+  "sha256": "REPLACE_WITH_SHA256_OF_YOUR_LOCAL_ONNX_MODEL",
+  "evaluation": {
+    "annotated_samples": 0,
+    "anatomical_labels_verified": false,
+    "report_file": "ear-evaluation.json",
+    "report_sha256": "REPLACE_WITH_SHA256_OF_YOUR_ANNOTATED_EVALUATION_REPORT"
+  }
+}

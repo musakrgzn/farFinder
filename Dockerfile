@@ -15,8 +15,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx11-6 libxext6 libxrender1 libsm6 libice6 \
     libxcb1 libxcb-xinerama0 libxcb-cursor0 libxcb-icccm4 \
     libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
-    libxkbcommon-x11-0 \
+    libxkbcommon-x11-0 libegl1 colmap=3.8-1 \
     && rm -rf /var/lib/apt/lists/*
+
+RUN QT_QPA_PLATFORM=offscreen colmap -h
+ENV OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
 
 WORKDIR /app
 COPY requirements.txt ./
@@ -35,5 +38,6 @@ RUN groupadd --gid "${APP_GID}" farfinder \
 
 COPY farfinder ./farfinder
 COPY tests ./tests
+COPY examples ./examples
 USER farfinder
 CMD ["python", "-m", "farfinder"]

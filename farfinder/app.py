@@ -185,9 +185,24 @@ def main() -> int:
     parser.add_argument("--model", type=Path,
                         default=Path(os.environ.get("FARFINDER_MODEL_PATH", "/app/models/face_landmarker.task")))
     parser.add_argument("--data-dir", type=Path, default=Path("/app/data"))
+    parser.add_argument("--head", action="store_true", help="Open automatic head capture / 3D measurement mode")
+    parser.add_argument("--capture-mode", choices=["moving-camera", "head-rotation"], default="moving-camera",
+                        help="Head capture: stationary subject/camera orbit, or experimental fixed-webcam head turns")
+    parser.add_argument("--intrinsics", type=Path, help="Head mode intrinsic calibration JSON")
+    parser.add_argument("--reference-square-cm", type=float, help="Independently measured static ChArUco square size")
+    parser.add_argument("--reference-uncertainty-cm", type=float, help="Uncertainty of the physical reference dimension")
+    parser.add_argument("--ear-model", type=Path, help="Optional local custom ear keypoint ONNX model")
+    parser.add_argument("--ear-manifest", type=Path, help="Ear model semantics, checksum and evaluation manifest")
     args = parser.parse_args()
+    if (args.reference_square_cm is None) != (args.reference_uncertainty_cm is None):
+        parser.error("Supply both physical reference dimension and its uncertainty")
+    if (args.ear_model is None) != (args.ear_manifest is None):
+        parser.error("Ear model and manifest must be supplied together")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
+        if args.head:
+            from farfinder.head.ui import run_head
+            return run_head(args)
         return run(args)
     except KeyboardInterrupt:
         return 0

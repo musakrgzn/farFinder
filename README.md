@@ -1,5 +1,36 @@
 # farFinder
 
+farFinder now also includes **automatic multi-view head capture and 3D
+measurement**. The original 30/60 cm webcam-distance mode remains the default.
+For the new mode, printable intrinsic calibration, reconstruction commands,
+metric-reference setup, and the exact anatomical limitations, see
+[HEAD_MEASUREMENTS.md](HEAD_MEASUREMENTS.md).
+
+After the desktop/camera setup below, launch the new interface with:
+
+```bash
+docker compose run --rm farfinder python -m farfinder --head
+```
+
+If the webcam must stay fixed, an **experimental head-turn mode** is available:
+
+```bash
+docker compose run --rm farfinder python -m farfinder --head --capture-mode head-rotation
+```
+
+Start facing the webcam and turn slowly toward both sides with a neutral
+expression. This can attempt a partial observed surface; it does not reconstruct
+unseen rear/top geometry or certify centimeters using a stationary board.
+See the fixed-webcam workflow in [HEAD_MEASUREMENTS.md](HEAD_MEASUREMENTS.md).
+
+The head mode captures overlapping images, reconstructs with local COLMAP and
+CPU stereo, and processes an observed mesh with Open3D. It **does not currently
+provide validated automatic tragus, superior ear-root, headband-pole, or hidden
+scalp detection**. Those references remain `UNRESOLVED`; the modular ear-model
+interface and Kang geometry are implemented and tested. A real human webcam
+scan and anatomical/physical accuracy evaluation still need target-hardware
+validation.
+
 Measure approximate webcam-to-face distance in centimeters with a live OpenCV
 window, MediaPipe facial landmarks, FPS, calibration status, and measurement CSVs.
 Python 3.11, OpenCV, MediaPipe, NumPy, and the tests run **inside Docker**. No Python
@@ -237,6 +268,10 @@ The image pins Python 3.11.14, MediaPipe 0.10.21, the GUI-enabled
 dependencies in `requirements.txt`. The contrib package supplies `cv2` and also
 satisfies MediaPipe's dependency; installing another OpenCV wheel alongside it
 would risk losing GUI support. The Dockerfile checks dependency compatibility.
+The head extension also pins `open3d-cpu` 0.19.0 and Debian COLMAP 3.8-1. The new
+Python dependency tree was resolved with `pip --dry-run` against the existing
+pins before installation. COLMAP's CPU feature extraction/matching and the
+OpenCV CPU dense-stereo fallback are enabled by default.
 
 The model is the versioned public MediaPipe Face Landmarker float16 v1 bundle:
 
